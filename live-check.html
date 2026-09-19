@@ -1,0 +1,467 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>订阅管理系统</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  
+<style>
+  /* === 深色科技主题 v2 核心变量（深蓝黑 + 靛紫光晕） === */
+  :root {
+    --dark-bg-primary: #0a0f1d;   /* 页面底色：近黑深蓝 */
+    --dark-bg-secondary: #111a2c; /* 卡片/容器背景 */
+    --dark-border: #22304d;       /* 边框颜色 */
+    --dark-text-main: #e8eef9;    /* 主要文字 */
+    --dark-text-muted: #8b99b3;   /* 次要文字 */
+  }
+  html.dark body { background-color: var(--dark-bg-primary); color: var(--dark-text-muted); }
+  html.dark .bg-white { background-color: var(--dark-bg-secondary) !important; color: var(--dark-text-main); }
+  html.dark .bg-gray-50 { background-color: var(--dark-bg-primary) !important; }
+  html.dark .bg-gray-100 { background-color: var(--dark-border) !important; }
+  html.dark .shadow-md, html.dark .shadow-lg, html.dark .shadow-xl { 
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3); 
+  }
+  html.dark .text-gray-900, html.dark .text-gray-800 { color: var(--dark-text-main) !important; }
+  html.dark .text-gray-700 { color: #d1d5db !important; }
+  html.dark .text-gray-600, html.dark .text-gray-500 { color: var(--dark-text-muted) !important; }
+  html.dark .text-indigo-600 { color: #818cf8 !important; }
+  html.dark .border-gray-200, html.dark .border-gray-300 { border-color: var(--dark-border) !important; }
+  html.dark .divide-y > :not([hidden]) ~ :not([hidden]) { border-color: var(--dark-border) !important; }
+  html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]) { border-color: var(--dark-border) !important; }
+  html.dark input, html.dark select, html.dark textarea {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: white !important;
+  }
+  html.dark input[readonly] {
+    background-color: #1f2937 !important;
+    color: #9ca3af !important;
+  }
+  html.dark .readonly-input { background-color: #1f2937 !important; border-color: #374151 !important; color: #9ca3af !important; }
+  html.dark input::placeholder, html.dark textarea::placeholder { color: #9ca3af; }
+  html.dark input:focus, html.dark select:focus, html.dark textarea:focus {
+    border-color: #818cf8 !important;
+    background-color: #4b5563 !important;
+  }
+  html.dark nav { background-color: var(--dark-bg-secondary) !important; border-bottom: 1px solid var(--dark-border); }
+  html.dark thead {
+    background-color: #111827 !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+  html.dark thead th {
+    color: #f9fafb !important;
+    background-color: #111827 !important;
+    border-bottom: 1px solid #4b5563 !important;
+    letter-spacing: 0.08em;
+  }
+  html.dark tbody tr:hover { background-color: #374151 !important; }
+  html.dark tbody tr.bg-gray-100 { background-color: #374151 !important; }
+  /* 弹窗与日期选择器 */
+  html.dark .custom-date-picker { background-color: var(--dark-bg-secondary); border-color: var(--dark-border); }
+  html.dark .custom-date-picker .calendar-day { color: #e5e7eb; }
+  html.dark .custom-date-picker .calendar-day:hover { background-color: #374151; }
+  html.dark .custom-date-picker .calendar-day.other-month { color: #4b5563; }
+  html.dark .month-option, html.dark .year-option { color: #e5e7eb; }
+  html.dark .month-option:hover, html.dark .year-option:hover { background-color: #374151 !important; }
+  html.dark .custom-dropdown-list { background-color: var(--dark-bg-secondary); border-color: var(--dark-border); }
+  html.dark .dropdown-item { color: #d1d5db; border-bottom-color: var(--dark-border); }
+  html.dark .dropdown-item:hover { background-color: #374151; color: #818cf8; }
+  html.dark #mobile-menu { background-color: var(--dark-bg-secondary); border-color: var(--dark-border); }
+  html.dark #mobile-menu a { color: #e5e7eb; }
+  html.dark #mobile-menu a:hover { background-color: #374151; }
+  html.dark #mobile-menu-btn { color: #e5e7eb; }
+  html.dark #mobile-menu-btn:hover { background-color: #374151; }
+  html.dark .loading-skeleton { background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%); }
+  html.dark .table-container { box-shadow: 0 6px 12px rgba(0,0,0,0.4); }
+  html.dark .hover-tooltip, html.dark .notes-tooltip {
+    background: #111827;
+    border: 1px solid #374151;
+  }
+  html.dark .hover-tooltip::before, html.dark .notes-tooltip::before {
+    border-bottom-color: #111827;
+  }
+  html.dark .hover-text:hover, html.dark .notes-text:hover { color: #93c5fd; }
+
+  /* === 统一按钮样式 tokens === */
+  .btn-primary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(99, 102, 241, 0.25); }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(99, 102, 241, 0.35); }
+  .btn-secondary { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(107, 114, 128, 0.25); }
+  .btn-secondary:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(107, 114, 128, 0.35); }
+  .btn-success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.25); }
+  .btn-success:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(16, 185, 129, 0.35); }
+  .btn-warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(245, 158, 11, 0.25); }
+  .btn-warning:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(245, 158, 11, 0.35); }
+  .btn-danger { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25); }
+  .btn-danger:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(239, 68, 68, 0.35); }
+  .btn-info { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(59, 130, 246, 0.25); }
+  .btn-info:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(59, 130, 246, 0.35); }
+  .btn-clone { background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(20, 184, 166, 0.25); color: #fff; }
+  .btn-clone:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(20, 184, 166, 0.35); }
+  .btn-history { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); transition: all 0.2s; box-shadow: 0 6px 14px rgba(168, 85, 247, 0.25); color: #fff; }
+  .btn-history:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(168, 85, 247, 0.35); }
+
+  @media (max-width: 767px) {   /* === 移动端表格样式(高对比度版) === */
+    html.dark .responsive-table td:before {  /* 强制提亮移动端表格的 Label */
+      color: #e5e7eb !important;    /* 改为极亮的浅灰色 (接近纯白) */
+      font-weight: 700 !important;  /* 加粗字体 */
+      opacity: 1 !important;
+      text-transform: uppercase;    /* 可选：增加大写使其更突出 */
+      letter-spacing: 0.05em;
+    }
+    html.dark .responsive-table tr {
+      border-color: #374151 !important;
+      background-color: #1f2937 !important;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important; /* 阴影稍微加深 */
+    }
+    
+    html.dark .responsive-table td {
+      border-bottom-color: #374151 !important;
+    }
+    
+    html.dark .td-content-wrapper {
+        color: #f3f4f6;
+    }
+  }
+
+  /* ============================================================
+     深色科技主题 v2 增强层：毛玻璃导航 / 卡片层次 / 操作按钮芯片化
+     ============================================================ */
+
+  /* 全局：收窄内容宽度（明暗均生效，居中更紧凑） */
+  .max-w-7xl { max-width: 72rem; }
+  table.responsive-table { font-variant-numeric: tabular-nums; }
+
+  html.dark { color-scheme: dark; }
+  html.dark body {
+    background:
+      radial-gradient(1100px 560px at 75% -12%, rgba(99, 102, 241, 0.12), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(139, 92, 246, 0.08), transparent 55%),
+      var(--dark-bg-primary) !important;
+    background-attachment: fixed;
+  }
+  /* body 自带 bg-gray-100 类时，旧规则会把底色刷亮，此处压回近黑底 */
+  html.dark body.bg-gray-100 { background-color: var(--dark-bg-primary) !important; }
+
+  /* 导航：悬浮毛玻璃 + 靛蓝细边 */
+  html.dark nav {
+    background: rgba(13, 20, 38, 0.82) !important;
+    -webkit-backdrop-filter: blur(14px) saturate(150%);
+    backdrop-filter: blur(14px) saturate(150%);
+    border-bottom: 1px solid rgba(99, 102, 241, 0.20) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.30);
+  }
+
+  /* 卡片容器：细边框 + 大圆角 + 柔影 */
+  html.dark .table-container {
+    background-color: var(--dark-bg-secondary) !important;
+    border: 1px solid rgba(148, 163, 184, 0.10);
+    border-radius: 14px;
+    box-shadow: 0 14px 38px rgba(0, 0, 0, 0.38);
+  }
+  html.dark .bg-white.rounded-md,
+  html.dark .bg-white.rounded-lg,
+  html.dark .bg-white.rounded-xl { border: 1px solid rgba(148, 163, 184, 0.10); }
+
+  /* 仪表盘卡片：微渐变 + 悬停描边 */
+  html.dark .stat-card {
+    background: linear-gradient(160deg, #152138 0%, #0f1830 100%) !important;
+    border: 1px solid rgba(148, 163, 184, 0.10);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.32) !important;
+  }
+  html.dark .stat-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(129, 140, 248, 0.35);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.40), 0 0 0 1px rgba(99, 102, 241, 0.15) !important;
+  }
+
+  /* 表头：深色底 + 靛蓝分割线 */
+  html.dark thead,
+  html.dark thead th { background-color: #0d1526 !important; }
+  html.dark thead th {
+    color: #93a3c4 !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.07em !important;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.20) !important;
+  }
+  html.dark tbody tr:hover { background-color: rgba(99, 102, 241, 0.07) !important; }
+
+  /* 输入控件 */
+  html.dark input,
+  html.dark select,
+  html.dark textarea {
+    background-color: #0d1526 !important;
+    border-color: rgba(148, 163, 184, 0.16) !important;
+  }
+  html.dark input:focus,
+  html.dark select:focus,
+  html.dark textarea:focus {
+    background-color: #0d1526 !important;
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.20) !important;
+    outline: none;
+  }
+  html.dark input[readonly],
+  html.dark .readonly-input {
+    background-color: #0b1222 !important;
+    border-color: rgba(148, 163, 184, 0.10) !important;
+  }
+
+  /* 品牌主按钮：保留实色渐变（页面主要 CTA） */
+  html.dark .btn-primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+  }
+  html.dark .btn-primary:hover { box-shadow: 0 6px 20px rgba(99, 102, 241, 0.50); }
+
+  /* 操作列语义按钮：弱化为深色描边小芯片，悬停才提亮 */
+  html.dark .btn-secondary,
+  html.dark .btn-success,
+  html.dark .btn-warning,
+  html.dark .btn-danger,
+  html.dark .btn-info,
+  html.dark .btn-clone,
+  html.dark .btn-history {
+    transform: none;
+    box-shadow: none;
+    border: 1px solid transparent;
+    font-weight: 500;
+  }
+  html.dark .btn-secondary:hover,
+  html.dark .btn-success:hover,
+  html.dark .btn-warning:hover,
+  html.dark .btn-danger:hover,
+  html.dark .btn-info:hover,
+  html.dark .btn-clone:hover,
+  html.dark .btn-history:hover { transform: none; box-shadow: none; }
+
+  html.dark .btn-secondary { background: rgba(148, 163, 184, 0.13); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.28); }
+  html.dark .btn-secondary:hover { background: rgba(148, 163, 184, 0.22); color: #e2e8f0; }
+  html.dark .btn-success { background: rgba(16, 185, 129, 0.13); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.30); }
+  html.dark .btn-success:hover { background: rgba(16, 185, 129, 0.24); color: #a7f3d0; }
+  html.dark .btn-warning { background: rgba(245, 158, 11, 0.13); color: #fcd34d; border-color: rgba(245, 158, 11, 0.30); }
+  html.dark .btn-warning:hover { background: rgba(245, 158, 11, 0.24); color: #fde68a; }
+  html.dark .btn-danger { background: rgba(244, 63, 94, 0.13); color: #fda4af; border-color: rgba(244, 63, 94, 0.30); }
+  html.dark .btn-danger:hover { background: rgba(244, 63, 94, 0.24); color: #fecdd3; }
+  html.dark .btn-info { background: rgba(59, 130, 246, 0.13); color: #93c5fd; border-color: rgba(59, 130, 246, 0.30); }
+  html.dark .btn-info:hover { background: rgba(59, 130, 246, 0.24); color: #bfdbfe; }
+  html.dark .btn-clone { background: rgba(20, 184, 166, 0.13); color: #5eead4; border-color: rgba(20, 184, 166, 0.30); }
+  html.dark .btn-clone:hover { background: rgba(20, 184, 166, 0.24); color: #99f6e4; }
+  html.dark .btn-history { background: rgba(168, 85, 247, 0.13); color: #d8b4fe; border-color: rgba(168, 85, 247, 0.30); }
+  html.dark .btn-history:hover { background: rgba(168, 85, 247, 0.24); color: #e9d5ff; }
+
+  /* 下拉 / 日期选择器 / 提示气泡 跟随新底色 */
+  html.dark .custom-dropdown-list,
+  html.dark .custom-date-picker { background-color: #0f1830 !important; border-color: rgba(148, 163, 184, 0.14) !important; }
+  html.dark .loading-skeleton { background: linear-gradient(90deg, #111a2c 25%, #1a2540 50%, #111a2c 75%); }
+  html.dark .hover-tooltip,
+  html.dark .notes-tooltip {
+    background: #0d1526;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.50);
+  }
+  html.dark .hover-tooltip::before,
+  html.dark .notes-tooltip::before { border-bottom-color: #0d1526; }
+  html.dark .hover-tooltip.tooltip-above::before,
+  html.dark .notes-tooltip.tooltip-above::before { border-top-color: #0d1526; }
+
+  /* 登录页：深色科技背景 + 玻璃卡片 */
+  html.dark .login-container {
+    background:
+      radial-gradient(900px 480px at 80% -10%, rgba(99, 102, 241, 0.28), transparent 60%),
+      radial-gradient(700px 420px at -10% 110%, rgba(139, 92, 246, 0.22), transparent 55%),
+      #0a0f1d !important;
+  }
+  html.dark .login-box {
+    background-color: rgba(17, 26, 44, 0.82) !important;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(99, 102, 241, 0.08) !important;
+  }
+  html.dark .login-box .text-amber-700 { color: #fcd34d !important; }
+  html.dark .login-box code {
+    background: rgba(99, 102, 241, 0.18);
+    color: #c7d2fe;
+    padding: 1px 6px;
+    border-radius: 5px;
+  }
+
+  /* 品牌标识微光 */
+  html.dark .text-indigo-600 { text-shadow: 0 0 22px rgba(129, 140, 248, 0.35); }
+
+  /* 深色滚动条 */
+  html.dark ::-webkit-scrollbar { width: 10px; height: 10px; }
+  html.dark ::-webkit-scrollbar-track { background: transparent; }
+  html.dark ::-webkit-scrollbar-thumb { background: #243150; border-radius: 8px; border: 2px solid var(--dark-bg-primary); }
+  html.dark ::-webkit-scrollbar-thumb:hover { background: #314066; }
+
+  /* 键盘焦点可见性 */
+  html.dark a:focus-visible,
+  html.dark button:focus-visible,
+  html.dark input:focus-visible,
+  html.dark select:focus-visible,
+  html.dark textarea:focus-visible {
+    outline: 2px solid rgba(129, 140, 248, 0.65);
+    outline-offset: 2px;
+  }
+</style>
+<script>
+  (function() {
+    function applyTheme(mode) {
+      const html = document.documentElement;
+      const isSystemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      
+      if (mode === 'dark' || (mode === 'system' && isSystemDark)) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+    }
+
+    // 升级深色科技主题：首次访问时默认 dark（仅迁移一次，之后以用户手动选择为准）
+    if (!localStorage.getItem('themeMigratedV2')) {
+      localStorage.setItem('themeMode', 'dark');
+      localStorage.setItem('themeMigratedV2', '1');
+    }
+    const savedTheme = localStorage.getItem('themeMode') || 'dark';
+    applyTheme(savedTheme);
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+      const currentMode = localStorage.getItem('themeMode') || 'system';
+      if (currentMode === 'system') {
+        applyTheme('system');
+      }
+    });
+
+    window.addEventListener('load', async () => {
+      if (window.location.pathname.startsWith('/admin')) {
+        try {
+          const res = await fetch('/api/config');
+          const config = await res.json();
+          const select = document.getElementById('themeModeSelect');
+          // 仅同步明确的 light/dark；服务端出厂默认 system 不覆盖本地选择（含首次迁移到 dark）
+          if ((config.THEME_MODE === 'light' || config.THEME_MODE === 'dark')
+              && config.THEME_MODE !== localStorage.getItem('themeMode')) {
+            localStorage.setItem('themeMode', config.THEME_MODE);
+            applyTheme(config.THEME_MODE);
+            if (select) select.value = config.THEME_MODE;
+          } else if (select) {
+            select.value = localStorage.getItem('themeMode') || 'dark';
+          }
+        } catch(e) {}
+      }
+    });
+    
+    window.updateAppTheme = function(mode) {
+      localStorage.setItem('themeMode', mode);
+      applyTheme(mode);
+    };
+  })();
+</script>
+  <style>
+    .login-container {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .login-box {
+      backdrop-filter: blur(8px);
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+    .input-field {
+      transition: all 0.3s;
+      border: 1px solid #e2e8f0;
+    }
+    .input-field:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.25);
+    }
+    html.dark .login-container {
+      background: linear-gradient(135deg, #3b4cc4 0%, #4a2b6b 100%);
+    }
+    html.dark .login-box {
+      background-color: rgba(17, 24, 39, 0.95);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    html.dark .login-box .text-gray-800 { color: #f3f4f6; }
+    html.dark .login-box .text-gray-600,
+    html.dark .login-box .text-gray-700 { color: #cbd5e1; }
+  </style>
+</head>
+<body class="login-container flex items-center justify-center">
+  <div class="login-box p-8 rounded-xl w-full max-w-md">
+    <div class="text-center mb-8">
+      <h1 class="text-2xl font-bold text-gray-800"><i class="fas fa-calendar-check mr-2"></i>订阅管理系统</h1>
+      <p class="text-gray-600 mt-2">登录管理您的订阅提醒</p>
+    </div>
+    
+    <form id="loginForm" class="space-y-6">
+      <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+          <i class="fas fa-user mr-2"></i>用户名
+        </label>
+        <input type="text" id="username" name="username" required
+          class="input-field w-full px-4 py-3 rounded-lg text-gray-700 focus:outline-none">
+      </div>
+      
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">
+          <i class="fas fa-lock mr-2"></i>密码
+        </label>
+        <input type="password" id="password" name="password" required
+          class="input-field w-full px-4 py-3 rounded-lg text-gray-700 focus:outline-none">
+      </div>
+      
+      <button type="submit" 
+        class="btn-primary w-full py-3 rounded-lg text-white font-medium focus:outline-none">
+        <i class="fas fa-sign-in-alt mr-2"></i>登录
+      </button>
+      
+      <div id="errorMsg" class="text-red-500 text-center" role="alert"></div>
+      <p class="text-xs text-amber-700 text-center mt-3 leading-relaxed">
+        若仍使用默认账号 <code>admin</code> / <code>password</code>，登录后请立即在「系统配置」修改密码。
+      </p>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      const button = e.target.querySelector('button');
+      const originalContent = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>登录中...';
+      button.disabled = true;
+      
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          window.location.href = '/admin';
+        } else {
+          document.getElementById('errorMsg').textContent = result.message || '用户名或密码错误';
+          button.innerHTML = originalContent;
+          button.disabled = false;
+        }
+      } catch (error) {
+        document.getElementById('errorMsg').textContent = '发生错误，请稍后再试';
+        button.innerHTML = originalContent;
+        button.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
