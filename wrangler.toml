@@ -18,6 +18,12 @@ name = "substracker-staging"
 directory = "./public"
 binding = "ASSETS"
 
+# KV 命名空间配置 - 存储订阅数据与系统配置（自动部署必需，勿删）
+[[kv_namespaces]]
+binding = "SUBSCRIPTIONS_KV"
+id = "e0cb5640c20b452cabf97cf70a113f09"
+preview_id = "e0cb5640c20b452cabf97cf70a113f09"
+
 # 定时任务配置 - 每小时检查一次（UTC）
 [triggers]
 crons = ["0 * * * *"]
